@@ -3299,7 +3299,7 @@ function sendWhatsAppSimulated() {
         showToast("Mensagem enviada com sucesso no simulador do WhatsApp!", "success");
         
         // Build actual redirect link to open real WhatsApp Web
-        const text = `Olá! Segue o seu ticket digital do *AG Parking* 🚗\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n` : ''}\n*Acesse seu ticket digital com o QR Code para leitura na cancela:*\n${ticketUrl}\n\nObrigado por utilizar nossos serviços!`;
+        const text = `Olá! Segue o seu ticket digital do *AG Parking* 🚗\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n` : ''}\n*Acesse seu ticket digital com o QR Code para leitura na cancela:* \n\n${ticketUrl} \n\nObrigado por utilizar nossos serviços!`;
         const encodedText = encodeURIComponent(text);
         const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${encodedText}`;
         
