@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Digital - AG Parking</title>
+    <!-- Google Fonts: Outfit & Fira Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg-start: #090d16;
+            --color-bg-end: #030712;
+            --color-card-bg: rgba(22, 28, 45, 0.65);
+            --color-border: rgba(255, 255, 255, 0.08);
+            --color-primary: #3b82f6;
+            --color-primary-glow: rgba(59, 130, 246, 0.35);
+            --color-success: #10b981;
+            --color-success-glow: rgba(16, 185, 129, 0.35);
+            --color-text-main: #f3f4f6;
+            --color-text-muted: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top, var(--color-bg-start), var(--color-bg-end));
+            min-height: 100vh;
+            color: var(--color-text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Glassmorphism Card */
+        .ticket-card {
+            background: var(--color-card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--color-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Glowing Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            transition: all 0.4s ease;
+        }
+
+        .status-active {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .status-active .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            animation: pulseBlue 1.6s infinite;
+        }
+
+        .status-paid {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+        }
+
+        .status-paid .check-icon {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        @keyframes pulseBlue {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        /* Branding */
+        .brand-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff 30%, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        /* QR Code wrapper with scan animation */
+        .qr-wrapper {
+            position: relative;
+            background: #fff;
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 16px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .qr-wrapper:hover {
+            transform: scale(1.03);
+        }
+
+        .qr-image {
+            display: block;
+            width: 160px;
+            height: 160px;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            background: linear-gradient(to right, rgba(59,130,246,0), rgba(59,130,246,1) 50%, rgba(59,130,246,0));
+            box-shadow: 0 0 8px #3b82f6;
+            animation: scanAnimation 3s ease-in-out infinite;
+        }
+
+        @keyframes scanAnimation {
+            0%, 100% { top: 16px; }
+            50% { top: calc(100% - 18px); }
+        }
+
+        .ticket-number {
+            font-family: 'Fira Mono', monospace;
+            font-size: 13px;
+            color: var(--color-text-muted);
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        /* Brazilian Mercosul Plate Widget */
+        .plate-container {
+            width: 100%;
+            max-width: 200px;
+            background: #ffffff;
+            border: 3px solid #111827;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+            margin-bottom: 24px;
+        }
+
+        .plate-header {
+            background: #003399;
+            color: #ffffff;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .plate-header-flag {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .plate-number-text {
+            color: #111827;
+            font-family: Arial, sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            padding: 6px 0;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        /* Details list styles */
+        .details-grid {
+            width: 100%;
+            border-top: 1px dashed var(--color-border);
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .detail-label {
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--color-text-main);
+        }
+
+        .detail-value.highlight {
+            color: #60a5fa;
+        }
+
+        .detail-value.paid-value {
+            color: #34d399;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Instructions Footer */
+        .ticket-footer {
+            margin-top: 28px;
+            font-size: 11px;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .ticket-footer svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            opacity: 0.7;
+        }
+
+        /* Loading & Error Screens */
+        .loader-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--color-primary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+        }
+
+        .error-message {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin: 15px 0 25px;
+            line-height: 1.6;
+        }
+
+        .btn-retry {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--color-primary-glow);
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--color-primary-glow);
+            background: #2563eb;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app-container">
+        <!-- RENDER CARREGAMENTO INICIAL -->
+        <div class="ticket-card" id="loading-state">
+            <div class="loader-spinner"></div>
+            <h2 class="brand-title">Carregando Ticket</h2>
+            <p style="color: var(--color-text-muted); font-size: 13px; margin-top: 5px;">Buscando informações da vaga...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initTicketView();
+        });
+
+        // Parse query params to find the ticket number
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketCode = urlParams.get('ticket');
+
+        async function initTicketView() {
+            const container = document.getElementById('app-container');
+            
+            if (!ticketCode) {
+                renderErrorState("Nenhum código de ticket foi fornecido na URL.<br>Verifique o link enviado pelo WhatsApp.");
+                return;
+            }
+
+            try {
+                // 1. Try to fetch from backend API
+                // We fetch the general list filtered by search keyword (ticketNumber)
+                const res = await fetch(`/api/tickets?search=${encodeURIComponent(ticketCode)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data)) {
+                        const ticket = data.find(t => t.ticketNumber === ticketCode);
+                        if (ticket) {
+                            renderTicket(ticket);
+                            return;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Falha ao consultar API. Tentando fallback local...", err);
+            }
+
+            // 2. Fallback to localStorage offline data
+            try {
+                const simTicketsStr = localStorage.getItem('ag_sim_tickets');
+                if (simTicketsStr) {
+                    const simTickets = JSON.parse(simTicketsStr);
+                    const ticket = simTickets.find(t => t.ticketNumber === ticketCode);
+                    if (ticket) {
+                        // If it's a simulated ticket, resolve its space details
+                        const simSpacesStr = localStorage.getItem('ag_sim_spaces');
+                        if (simSpacesStr) {
+                            const simSpaces = JSON.parse(simSpacesStr);
+                            const space = simSpaces.find(s => s.id === ticket.parkingSpaceId);
+                            if (space) {
+                                ticket.parkingSpace = space;
+                            }
+                        }
+                        renderTicket(ticket);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Erro no fallback de localStorage:", err);
+            }
+
+            // 3. Not found anywhere
+            renderErrorState(`Ticket <strong>${escapeHtml(ticketCode)}</strong> não localizado no sistema.<br>Ele pode ter sido removido ou está incorreto.`);
+        }
+
+        function renderTicket(ticket) {
+            const container = document.getElementById('app-container');
+            const typeNames = { 'Car': 'CARRO', 'Motorcycle': 'MOTO', 'Truck': 'UTILITÁRIO' };
+            
+            // Format dates
+            const entryTimeFormatted = new Date(ticket.entryTime).toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            
+            let exitTimeFormatted = '';
+            if (ticket.exitTime) {
+                exitTimeFormatted = new Date(ticket.exitTime).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            // Calculate duration formatted
+            let durationText = '';
+            if (ticket.exitTime) {
+                const diffMs = new Date(ticket.exitTime) - new Date(ticket.entryTime);
+                const diffMins = Math.max(0, Math.floor(diffMs / 60000));
+                const hours = Math.floor(diffMins / 60);
+                const mins = diffMins % 60;
+                durationText = hours > 0 ? `${hours}h ${mins}m` : `${mins}min`;
+            }
+
+            // Generate clean QR Code source
+            const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(ticket.ticketNumber)}`;
+
+            container.innerHTML = `
+                <div class="ticket-card">
+                    <!-- Status Badge -->
+                    <div class="status-badge ${ticket.isPaid ? 'status-paid' : 'status-active'}">
+                        ${ticket.isPaid ? '<span class="check-icon"></span> PAGO' : '<span class="pulse-dot"></span> ATIVO'}
+                    </div>
+
+                    <!-- Branding -->
+                    <h1 class="brand-title">AG PARKING</h1>
+                    <div class="brand-subtitle">Comprovante Digital</div>
+
+                    <!-- QR Code Widget -->
+                    <div class="qr-wrapper" onclick="window.open('${qrSrc}', '_blank')">
+                        <div class="scan-line"></div>
+                        <img class="qr-image" src="${qrSrc}" alt="QR Code do Ticket">
+                    </div>
+                    <div class="ticket-number">${escapeHtml(ticket.ticketNumber)}</div>
+
+                    <!-- Mercosul License Plate Widget -->
+                    <div class="plate-container">
+                        <div class="plate-header">
+                            <span>BRASIL</span>
+                            <div class="plate-header-flag">
+                                <svg width="10" height="7" viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="10" height="7" fill="#003399"/>
+                                    <path d="M5 1.5L5.5 3H4.5L5 1.5Z" fill="#yellow"/>
+                                    <!-- Simple representation of mercosul stars -->
+                                    <circle cx="5" cy="3.5" r="1.2" fill="none" stroke="white" stroke-width="0.3" stroke-dasharray="0.5 0.5"/>
+                                </svg>
+                                <span style="font-size: 6px; opacity: 0.9;">MERCOSUL</span>
+                            </div>
+                        </div>
+                        <div class="plate-number-text">${escapeHtml(ticket.plate)}</div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="details-grid">
+                        <div class="detail-row">
+                            <span class="detail-label">Categoria</span>
+                            <span class="detail-value">${typeNames[ticket.vehicleType] || 'VEÍCULO'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value highlight">${ticket.isMonthly ? 'MENSALISTA' : 'AVULSO'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Vaga</span>
+                            <span class="detail-value" style="color: #60a5fa; font-weight: 700;">
+                                ${ticket.parkingSpace ? escapeHtml(ticket.parkingSpace.code) : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Entrada</span>
+                            <span class="detail-value">${entryTimeFormatted}</span>
+                        </div>
+                        ${ticket.exitTime ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Saída</span>
+                                <span class="detail-value">${exitTimeFormatted}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Permanência</span>
+                                <span class="detail-value">${durationText}</span>
+                            </div>
+                            <div class="detail-row" style="margin-top: 6px; border-top: 1px dashed var(--color-border); padding-top: 10px;">
+                                <span class="detail-label" style="font-weight: 700;">Valor Pago</span>
+                                <span class="detail-value paid-value">R$ ${ticket.amountPaid.toFixed(2)}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Método</span>
+                                <span class="detail-value">${escapeHtml(ticket.paymentMethod || 'Dinheiro')}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Footer Instructions -->
+                    <div class="ticket-footer">
+                        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        <span>Apresente este código na leitora da cancela</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderErrorState(htmlMsg) {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="ticket-card">
+                    <div class="status-badge status-error">
+                        ⚠️ ERRO
+                    </div>
+                    <h2 class="brand-title" style="color: #ef4444; margin-bottom: 10px;">Falha ao Carregar</h2>
+                    <div class="error-message">${htmlMsg}</div>
+                    <button class="btn-retry" onclick="window.location.reload()">Tentar Novamente</button>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

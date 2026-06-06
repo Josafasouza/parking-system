@@ -3266,6 +3266,8 @@ function sendWhatsAppSimulated() {
         
         const typeNames = { 'Car': 'CARRO', 'Motorcycle': 'MOTO', 'Truck': 'UTILITARIO' };
         
+        const ticketUrl = `${window.location.origin}/ticket.html?ticket=${encodeURIComponent(ticket.ticketNumber)}`;
+        
         const successMsg = document.createElement('div');
         successMsg.className = 'whatsapp-bubble whatsapp-msg-in';
         successMsg.innerHTML = `
@@ -3281,8 +3283,11 @@ function sendWhatsAppSimulated() {
                 ${ticket.exitTime ? `<div><strong>Saída:</strong> ${formatDate(ticket.exitTime)}</div>` : ''}
                 ${ticket.exitTime ? `<div><strong>Valor Pago:</strong> R$ ${ticket.amountPaid.toFixed(2)}</div>` : ''}
                 <div style="display: flex; justify-content: center; margin-top: 10px;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(ticket.ticketNumber)}" alt="QR Code" style="width: 80px; height: 80px; border-radius: 4px; background: white; padding: 3px;" />
+                    <a href="${ticketUrl}" target="_blank" title="Clique para ampliar">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(ticket.ticketNumber)}" alt="QR Code" style="width: 80px; height: 80px; border-radius: 4px; background: white; padding: 3px;" />
+                    </a>
                 </div>
+                <a href="${ticketUrl}" target="_blank" style="display: block; text-align: center; background: #25d366; color: #fff; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; margin-top: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">Visualizar Ticket Digital</a>
             </div>
             
             Obrigado e boa viagem! 🤝
@@ -3294,7 +3299,7 @@ function sendWhatsAppSimulated() {
         showToast("Mensagem enviada com sucesso no simulador do WhatsApp!", "success");
         
         // Build actual redirect link to open real WhatsApp Web
-        const text = `Olá! Segue o seu ticket do *AG Parking*:\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n\n` : ''}Obrigado por utilizar nossos serviços!`;
+        const text = `Olá! Segue o seu ticket digital do *AG Parking* 🚗\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n` : ''}\n*Acesse seu ticket digital com o QR Code para leitura na cancela:*\n${ticketUrl}\n\nObrigado por utilizar nossos serviços!`;
         const encodedText = encodeURIComponent(text);
         const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${encodedText}`;
         
