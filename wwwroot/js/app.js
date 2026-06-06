@@ -944,6 +944,16 @@ function renderHistory() {
                     ${ticket.isPaid ? 'Pago' : 'No Estacionamento'}
                 </span>
             </td>
+            <td style="text-align: center;">
+                <div style="display: inline-flex; gap: 8px; justify-content: center; align-items: center;">
+                    <button class="btn-search" style="padding: 6px 10px; height: auto; width: auto; font-size: 11px; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); color: var(--color-primary);" onclick="viewTicketReceiptFromHistory('${ticket.ticketNumber}')" title="Visualizar Cupom">
+                        👁️
+                    </button>
+                    <button class="btn-success" style="padding: 6px 10px; height: auto; width: auto; font-size: 11px; background: rgba(37, 211, 102, 0.1); border-color: rgba(37, 211, 102, 0.2); color: #25d366;" onclick="openWhatsAppChatbot('${ticket.ticketNumber}')" title="Enviar WhatsApp">
+                        💬
+                    </button>
+                </div>
+            </td>
         `;
         
         tableBody.appendChild(row);
@@ -3563,5 +3573,23 @@ function generatePDFReport() {
     `);
     printWindow.document.close();
     showToast("Relatório gerencial gerado. Abra o painel de impressão.", "success");
+}
+
+function viewTicketReceiptFromHistory(ticketNumber) {
+    const ticket = tickets.find(t => t.ticketNumber === ticketNumber);
+    if (!ticket) return;
+    
+    // Switch to gate view where the receipt panel is
+    switchView('gate');
+    
+    // Render the receipt on the right panel
+    const space = parkingSpaces.find(s => s.id === ticket.parkingSpaceId);
+    if (ticket.isPaid) {
+        renderPaidReceipt(ticket, space);
+    } else {
+        renderTicketReceipt(ticket, space);
+    }
+    
+    showToast(`Mostrando comprovante do ticket ${ticketNumber}`, "info");
 }
 
