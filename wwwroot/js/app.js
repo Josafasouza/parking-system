@@ -1516,9 +1516,7 @@ function renderTicketReceipt(ticket, space) {
             </div>
             <div class="receipt-divider"></div>
             <div class="receipt-qr">
-                <div class="qr-code-placeholder">
-                    SCAN TICKET ENTRY GATEWAY
-                </div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(ticket.ticketNumber)}" alt="QR Code" style="width: 110px; height: 110px; background: #fff; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
                 <p style="font-size: 8px; color: #6b7280; text-align: center; margin-top: 5px;">
                     Guarde este cupom. Sujeito a cobrança em caso de extravio de acordo com as normas.
                 </p>
@@ -1626,9 +1624,7 @@ function renderPaidReceipt(ticket, space) {
             </div>
             <div class="receipt-divider"></div>
             <div class="receipt-qr">
-                <div class="qr-code-placeholder" style="border: 2px solid #10b981; color: #10b981;">
-                    SAÍDA LIBERADA AUTO-GATE
-                </div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(ticket.ticketNumber)}" alt="QR Code" style="width: 110px; height: 110px; background: #fff; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
                 <p style="font-size: 8px; color: #047857; text-align: center; font-weight: bold; margin-top: 5px;">
                     SAÍDA AUTOMÁTICA AUTORIZADA.<br>VOCÊ TEM 15 MINUTOS PARA SAIR.
                 </p>
@@ -3006,6 +3002,9 @@ function triggerTestPrint() {
             <p>STATUS: IMPRESSORA OK</p>
             <p>PERFIL: ${profile === 'thermal58' ? 'Térmica 58mm' : (profile === 'thermal80' ? 'Térmica 80mm' : 'Padrão A4')}</p>
             <p>-----------------------------</p>
+            <div style="display: flex; flex-direction: column; align-items: center; margin: 10px 0; gap: 5px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=TEST-TKT" alt="QR" style="width: 100px; height: 100px; background: #fff; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
             <p>${footer}</p>
         </div>
     `;
@@ -3154,6 +3153,10 @@ function printActiveReceipt() {
             <p>AV. TECNOLOGIA, 2026 - BRAZIL</p>
             ${detailHtml}
             <div class="receipt-divider"></div>
+            <div style="display: flex; flex-direction: column; align-items: center; margin: 10px 0; gap: 5px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(ticket.ticketNumber)}" alt="QR" style="width: 100px; height: 100px; background: #fff; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div class="receipt-divider"></div>
             <p style="font-size: 9px; text-align: center; margin-top: 5px;">${footer}</p>
         </div>
     `;
@@ -3274,6 +3277,9 @@ function sendWhatsAppSimulated() {
                 <div><strong>Entrada:</strong> ${formatDate(ticket.entryTime)}</div>
                 ${ticket.exitTime ? `<div><strong>Saída:</strong> ${formatDate(ticket.exitTime)}</div>` : ''}
                 ${ticket.exitTime ? `<div><strong>Valor Pago:</strong> R$ ${ticket.amountPaid.toFixed(2)}</div>` : ''}
+                <div style="display: flex; justify-content: center; margin-top: 10px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(ticket.ticketNumber)}" alt="QR Code" style="width: 80px; height: 80px; border-radius: 4px; background: white; padding: 3px;" />
+                </div>
             </div>
             
             Obrigado e boa viagem! 🤝
