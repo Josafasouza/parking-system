@@ -373,11 +373,9 @@ function updateConnectionStatus(isConnected) {
     if (isConnected) {
         indicator.className = 'indicator';
         statusText.textContent = 'Servidor .NET Conectado';
-        showToast("Conectado ao servidor de banco de dados!", "info");
     } else {
         indicator.className = 'indicator simulated';
         statusText.textContent = 'Modo Simulação (Offline)';
-        showToast("Servidor local offline. Ativando simulação local inteligente.", "info");
     }
 }
 
