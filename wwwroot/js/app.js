@@ -2912,7 +2912,7 @@ function initializePrintingConfig() {
     if (!localStorage.getItem('ag_printing_config')) {
         const defaultConfig = {
             profile: 'virtual',
-            headerText: 'ESTACIONAMENTO AG PARKING',
+            headerText: 'ESTACIONAMENTO PYTÁ PARKING',
             footerText: 'Guarde este cupom. Sujeito a cobrança em caso de extravio.',
             autoPrintEntry: false,
             autoPrintExit: false
@@ -2946,7 +2946,7 @@ function updateLiveTicketPreview() {
     const wrapper = document.getElementById('live-ticket-preview-wrapper');
     const badge = document.getElementById('preview-width-badge');
     
-    if (headerEl) headerEl.textContent = headerVal || 'AG PARKING';
+    if (headerEl) headerEl.textContent = headerVal || 'PYTÁ PARKING';
     if (footerEl) footerEl.textContent = footerVal || 'Guarde este cupom.';
     
     if (!wrapper || !badge) return;
@@ -2985,7 +2985,7 @@ function handleSavePrintingConfig(event) {
 // Trigger test print ticket
 function triggerTestPrint() {
     const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
-    const header = config.headerText || 'AG PARKING';
+    const header = config.headerText || 'PYTÁ PARKING';
     const footer = config.footerText || 'Guarde este cupom.';
     const profile = config.profile || 'virtual';
     
@@ -3105,7 +3105,7 @@ function printActiveReceipt() {
     }
     
     const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
-    const header = config.headerText || 'AG PARKING';
+    const header = config.headerText || 'PYTÁ PARKING';
     const footer = config.footerText || 'Guarde este cupom.';
     const ticket = currentActiveReceiptTicket;
     const space = currentActiveReceiptSpace;
@@ -3197,7 +3197,7 @@ function openWhatsAppChatbot(ticketNumber) {
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         chatBody.innerHTML = `
             <div class="whatsapp-bubble whatsapp-msg-in">
-                Olá! Sou o assistente de notificações digitais do <strong>AG Parking</strong>. 🚗
+                Olá! Sou o assistente de notificações digitais do <strong>Pytá Parking</strong>. 🚗
                 <br><br>
                 Por favor, insira o número de telefone celular do cliente no campo abaixo e confirme para enviar o ticket digital.
                 <span class="whatsapp-time">${timeStr}</span>
@@ -3274,7 +3274,7 @@ function sendWhatsAppSimulated() {
             O cupom digital foi disparado! Seguem os dados integrados do veículo:
             
             <div class="whatsapp-card">
-                <div class="whatsapp-card-title">COMPROVANTE AG PARKING</div>
+                <div class="whatsapp-card-title">COMPROVANTE PYTÁ PARKING</div>
                 <div><strong>Nº Ticket:</strong> ${ticket.ticketNumber}</div>
                 <div><strong>Placa:</strong> ${ticket.plate}</div>
                 <div><strong>Categoria:</strong> ${typeNames[ticket.vehicleType]}</div>
@@ -3299,7 +3299,7 @@ function sendWhatsAppSimulated() {
         showToast("Mensagem enviada com sucesso no simulador do WhatsApp!", "success");
         
         // Build actual redirect link to open real WhatsApp Web
-        const text = `Olá! Segue o seu ticket digital do *AG Parking* 🚗\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n` : ''}\n*Acesse seu ticket digital com o QR Code para leitura na cancela:* \n\n${ticketUrl} \n\nObrigado por utilizar nossos serviços!`;
+        const text = `Olá! Segue o seu ticket digital do *Pytá Parking* 🚗\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n` : ''}\n*Acesse seu ticket digital com o QR Code para leitura na cancela:* \n\n${ticketUrl} \n\nObrigado por utilizar nossos serviços!`;
         const encodedText = encodeURIComponent(text);
         const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${encodedText}`;
         
@@ -3406,7 +3406,7 @@ function generatePDFReport() {
     printWindow.document.write(`
         <html>
             <head>
-                <title>Relatorio Gerencial - AG Parking</title>
+                <title>Relatorio Gerencial - Pytá Parking</title>
                 <style>
                     body {
                         font-family: Arial, sans-serif;
@@ -3493,7 +3493,7 @@ function generatePDFReport() {
             <body>
                 <div class="header">
                     <div>
-                        <h1>AG PARKING</h1>
+                        <h1>PYTÁ PARKING</h1>
                         <p>Sistema Inteligente de Estacionamento</p>
                     </div>
                     <div style="text-align: right;">
@@ -3572,7 +3572,7 @@ function generatePDFReport() {
                 </table>
                 
                 <div class="footer">
-                    Relatório Administrativo Oficial - AG Parking. Todos os direitos reservados.
+                    Relatório Administrativo Oficial - Pytá Parking. Todos os direitos reservados.
                 </div>
                 
                 <script>
