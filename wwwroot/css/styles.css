@@ -1204,7 +1204,7 @@ body {
     background: var(--bg-glass);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    overflow-x: auto;
     backdrop-filter: blur(15px);
 }
 
