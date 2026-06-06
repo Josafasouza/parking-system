@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Gerenciamento de Estacionamento inteligente e responsivo. Controle entradas, saídas, faturamento e vagas em tempo real com design premium.">
+    <title>Antigravity Parking - Sistema Inteligente de Estacionamento</title>
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Icones SVG Embutidos nas seções para carregamento instantâneo -->
+</head>
+<body>
+
+    <!-- Login Screen Overlay -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">
+                    <svg viewBox="0 0 24 24" width="36" height="36">
+                        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-5h14v5z"/>
+                        <circle cx="7.5" cy="14.5" r="1.5" fill="#3b82f6"/>
+                        <circle cx="16.5" cy="14.5" r="1.5" fill="#3b82f6"/>
+                    </svg>
+                </div>
+                <h2>AG Parking</h2>
+                <p>Acesse o painel do sistema inteligente</p>
+            </div>
+            <form id="login-form" onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label for="login-username">Usuário</label>
+                    <div class="input-with-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <input type="text" id="login-username" placeholder="Digite seu usuário" required autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Senha</label>
+                    <div class="input-with-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="login-password" placeholder="Digite sua senha" required autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" id="btn-login-submit" style="margin-top: 10px;">
+                    Entrar no Sistema
+                </button>
+            </form>
+            <div class="login-footer">
+                <span>&copy; 2026 AG Parking | C# & .NET 9</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-5h14v5z"/>
+                        <circle cx="7.5" cy="14.5" r="1.5" fill="#fff"/>
+                        <circle cx="16.5" cy="14.5" r="1.5" fill="#fff"/>
+                    </svg>
+                </div>
+                <span class="brand-name">AG Parking</span>
+            </div>
+
+            <!-- User Profile Widget -->
+            <div class="user-profile-card">
+                <div class="user-avatar">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="session-user-name">Operador</div>
+                    <div class="user-role-badge" id="session-user-role">Caixa</div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-logout" onclick="openChangePasswordModal()" title="Alterar Senha" style="border-color: rgba(59, 130, 246, 0.25);">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                    <button class="btn-logout" onclick="handleLogout()" title="Sair do Sistema">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" id="nav-dashboard" onclick="switchView('dashboard')">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="nav-gate" onclick="switchView('gate')">
+                            <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6M9 14h6"/></svg>
+                            <span>Portaria / Gate</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="nav-map" onclick="switchView('map')">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                            <span>Mapa de Vagas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="nav-tariffs" onclick="switchView('tariffs')">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                            <span>Tabela de Preços</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="nav-monthly" onclick="switchView('monthly')">
+                            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>Mensalistas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="nav-history" onclick="switchView('history')">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <span>Histórico & Caixa</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="nav-logs" onclick="switchView('logs')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span>Logs do Sistema</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav-item-users" style="display: none;">
+                        <a href="#" class="nav-link" id="nav-users" onclick="switchView('users')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>Config. Usuários</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="nav-item-capacity" style="display: none;">
+                        <a href="#" class="nav-link" id="nav-capacity" onclick="switchView('capacity')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                            <span>Config. Vagas</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-badge">
+                    <div class="indicator" id="status-indicator"></div>
+                    <span id="status-text">Conectado ao Servidor</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- Header Panel -->
+            <header class="header-panel">
+                <div class="header-title">
+                    <h1 id="view-title">Dashboard Operacional</h1>
+                    <p id="view-subtitle">Resumo estatístico das operações e ocupação atual.</p>
+                </div>
+                <div class="system-clock" id="system-clock">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="clock-display">00:00:00</span>
+                </div>
+            </header>
+
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard-section" class="app-view active-view">
+                <!-- Cards Grid -->
+                <div class="stats-grid">
+                    <!-- Card Total Capacity -->
+                    <div class="card card-blue" id="card-total-spaces">
+                        <div class="card-header-icon">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none"/></svg>
+                        </div>
+                        <div class="card-title">Vagas Totais</div>
+                        <div class="card-value" id="stats-total-spaces">0</div>
+                        <div class="card-desc">Capacidade total do complexo</div>
+                    </div>
+                    <!-- Card Occupied -->
+                    <div class="card card-danger" id="card-occupied-spaces">
+                        <div class="card-header-icon">
+                            <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+                        </div>
+                        <div class="card-title">Veículos Estacionados</div>
+                        <div class="card-value" id="stats-occupied-spaces">0</div>
+                        <div class="card-desc">Vagas ocupadas no momento</div>
+                    </div>
+                    <!-- Card Free Spaces -->
+                    <div class="card card-green" id="card-free-spaces">
+                        <div class="card-header-icon">
+                            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="card-title">Vagas Livres</div>
+                        <div class="card-value" id="stats-free-spaces">0</div>
+                        <div class="card-desc" id="stats-free-desc">Disponibilidade imediata</div>
+                    </div>
+                    <!-- Card Faturamento -->
+                    <div class="card card-warning" id="card-revenue">
+                        <div class="card-header-icon">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div class="card-title">Caixa do Dia</div>
+                        <div class="card-value" id="stats-revenue">R$ 0,00</div>
+                        <div class="card-desc">Receita líquida faturada hoje</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Analytics -->
+                <div class="dashboard-details">
+                    <!-- Left detail: Vehicle types occupancy bars -->
+                    <div class="content-box">
+                        <h3 class="content-box-title">Distribuição por Categoria</h3>
+                        <div class="occupancy-bars">
+                            <!-- Cars -->
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span>Carros (Setor A)</span>
+                                    <span id="stats-car-ratio">0 / 0</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill bar-car" id="stats-car-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Motorcycles -->
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span>Motos (Setor B)</span>
+                                    <span id="stats-moto-ratio">0 / 0</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill bar-moto" id="stats-moto-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Trucks -->
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span>Utilitários / Caminhões (Setor C)</span>
+                                    <span id="stats-truck-ratio">0 / 0</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill bar-truck" id="stats-truck-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right detail: Progress circle -->
+                    <div class="content-box">
+                        <h3 class="content-box-title">Taxa de Ocupação</h3>
+                        <div class="occupancy-donut-container">
+                            <svg class="donut-chart-svg" width="200" height="200">
+                                <defs>
+                                    <linearGradient id="donut-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#3b82f6" />
+                                        <stop offset="100%" stop-color="#8b5cf6" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="donut-bg" cx="100" cy="100" r="90" />
+                                <circle class="donut-progress" id="occupancy-donut-progress" cx="100" cy="100" r="90" />
+                            </svg>
+                            <div class="donut-label">
+                                <span class="donut-number" id="occupancy-percentage">0%</span>
+                                <span class="donut-text">Ocupado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: PORTARIA / GATE -->
+            <section id="view-gate-section" class="app-view">
+                <div class="gate-grid">
+                    <!-- Left: Control Panels (Entry and Exit) -->
+                    <div style="display: flex; flex-direction: column; gap: 30px;">
+                        <!-- Entry Registration -->
+                        <div class="gate-form-card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--color-primary)" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v9M9 5l3-3 3 3"/></svg>
+                                Registro de Entrada (Cancela)
+                            </h2>
+                            <form id="entry-form" onsubmit="handleVehicleEntry(event)">
+                                <div class="form-group">
+                                    <label for="entry-plate">Placa do Veículo</label>
+                                    <div class="plate-input-container">
+                                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 21v-6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v6"/><circle cx="12" cy="8" r="2"/></svg>
+                                        <input type="text" id="entry-plate" class="input-plate" oninput="handleEntryPlateInput()" placeholder="AAA-9999 ou ABC1D23" required>
+                                    </div>
+                                    <div id="entry-subscriber-badge" style="display: none; margin-top: 10px;"></div>
+                                </div>
+                                <div class="form-group" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                    <div>
+                                        <label for="entry-brand">Marca</label>
+                                        <input type="text" id="entry-brand" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: Chevrolet">
+                                    </div>
+                                    <div>
+                                        <label for="entry-model">Modelo</label>
+                                        <input type="text" id="entry-model" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: Onix">
+                                    </div>
+                                    <div>
+                                        <label for="entry-color">Cor</label>
+                                        <input type="text" id="entry-color" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: Preto">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo de Veículo</label>
+                                    <div class="type-selector">
+                                        <div class="type-option selected" id="type-opt-car" onclick="selectEntryVehicleType('Car')">
+                                            <svg viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.5 6 10 6H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h2m10-5c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2zM6 15c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z"/></svg>
+                                            <span>Carro</span>
+                                        </div>
+                                        <div class="type-option" id="type-opt-motorcycle" onclick="selectEntryVehicleType('Motorcycle')">
+                                            <svg viewBox="0 0 24 24"><circle cx="5.5" cy="14.5" r="2.5"/><circle cx="18.5" cy="14.5" r="2.5"/><path d="M5.5 12h2.5l2.5-4h4.5l2 4h1.5M10.5 8l-2-4h-2M15 8l-1.5-4h-3"/></svg>
+                                            <span>Moto</span>
+                                        </div>
+                                        <div class="type-option" id="type-opt-truck" onclick="selectEntryVehicleType('Truck')">
+                                            <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><rect x="16" y="8" width="7" height="8" rx="1"/><circle cx="5" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+                                            <span>Utilitário</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary" id="btn-submit-entry">
+                                    Emitir Ticket & Abrir Cancela
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Exit Processing & Payment -->
+                        <div class="gate-form-card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--color-success)" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 11V2M9 5l3 3 3-3"/></svg>
+                                Processar Saída e Pagamento
+                            </h2>
+                            <div class="gate-search-container">
+                                <input type="text" id="exit-search-input" class="input-search" placeholder="Buscar por Placa ou Ticket...">
+                                <button class="btn-search" onclick="searchTicketForExit()">
+                                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Calculation Display Details -->
+                            <div id="checkout-calculation-panel" style="display: none;">
+                                <div class="ticket-calculation-details">
+                                    <div class="calc-row">
+                                        <span class="label">Ticket</span>
+                                        <span class="value" id="calc-ticket-number">TKT-000000</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="label">Placa</span>
+                                        <span class="value" id="calc-plate">AAA-0000</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="label">Modalidade</span>
+                                        <span class="value" id="calc-type-badge">Avulso</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="label">Veículo</span>
+                                        <span class="value" id="calc-vehicle-details">--</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="label">Entrada</span>
+                                        <span class="value" id="calc-entry-time">--/--/---- --:--</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="label">Tempo Decorrido</span>
+                                        <span class="value" id="calc-duration">0m</span>
+                                    </div>
+                                    <div class="calc-row">
+                                        <span class="label">Tarifa Aplicada</span>
+                                        <span class="value" id="calc-tariff-rate">R$ 0,00</span>
+                                    </div>
+                                    <div class="calc-total">
+                                        <span>Total a Pagar</span>
+                                        <span class="value" id="calc-total-amount">R$ 0,00</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Método de Pagamento</label>
+                                    <div class="method-selector">
+                                        <div class="method-option selected" id="method-opt-money" onclick="selectPaymentMethod('Dinheiro')">Dinheiro</div>
+                                        <div class="method-option" id="method-opt-card" onclick="selectPaymentMethod('Cartão')">Cartão</div>
+                                        <div class="method-option" id="method-opt-pix" onclick="selectPaymentMethod('PIX')">PIX</div>
+                                    </div>
+                                </div>
+
+                                <button class="btn-success" id="btn-confirm-exit" onclick="confirmPaymentAndExit()">
+                                    Confirmar Pagamento e Liberar Cancela
+                                </button>
+                            </div>
+                            
+                            <div id="checkout-empty-message" style="color: var(--text-muted); text-align: center; padding: 20px 0;">
+                                Busque um ticket ou placa ativo para calcular e processar o pagamento.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Digital Receipt Preview -->
+                    <div class="receipt-wrapper">
+                        <div id="receipt-preview-container" style="display: none;">
+                            <!-- Dynamic receipt is rendered here -->
+                        </div>
+                        <div id="receipt-empty-state" class="content-box" style="width: 320px; text-align: center; border-style: dashed; padding: 40px 20px;">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin-bottom: 15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <h4 style="margin-bottom: 10px; font-family: var(--font-heading);">Comprovante Fiscal</h4>
+                            <p style="font-size: 13px; color: var(--text-secondary);">Um comprovante digital interativo do ticket será gerado aqui após a entrada ou pagamento do veículo.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: MAPA DE VAGAS -->
+            <section id="view-map-section" class="app-view">
+                <div class="content-box">
+                    <div class="content-box-title">
+                        <span>Layout Físico das Vagas</span>
+                        <!-- Filter Sectors -->
+                        <div class="sector-nav">
+                            <button class="sector-btn active" id="sector-btn-all" onclick="filterMapSector('all')">Todos os Setores</button>
+                            <button class="sector-btn" id="sector-btn-car" onclick="filterMapSector('Car')">Carros (Setor A)</button>
+                            <button class="sector-btn" id="sector-btn-moto" onclick="filterMapSector('Motorcycle')">Motos (Setor B)</button>
+                            <button class="sector-btn" id="sector-btn-truck" onclick="filterMapSector('Truck')">Utilitários (Setor C)</button>
+                        </div>
+                    </div>
+
+                    <!-- Grid Layout for Map -->
+                    <div class="parking-map-grid" id="parking-map-grid-container">
+                        <!-- Parking Space Cells will be dynamically generated by JS -->
+                    </div>
+
+                    <!-- Map Legend -->
+                    <div style="display: flex; gap: 30px; border-top: 1px solid var(--border-color); padding-top: 25px; margin-top: 25px; justify-content: center; font-size: 14px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; background: var(--color-success); border-radius: 3px;"></div>
+                            <span>Vaga Livre</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; background: var(--color-danger); border-radius: 3px;"></div>
+                            <span>Vaga Ocupada</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text-secondary)" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.5 6 10 6H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h2"/></svg>
+                            <span>Setor A (Carros)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text-secondary)" stroke-width="2"><circle cx="5.5" cy="14.5" r="2.5"/><circle cx="18.5" cy="14.5" r="2.5"/><path d="M5.5 12h2.5l2.5-4h4.5l2 4h1.5"/></svg>
+                            <span>Setor B (Motos)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text-secondary)" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><circle cx="5" cy="18" r="2"/></svg>
+                            <span>Setor C (Caminhões)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: TABELA DE PRECOS (CONFIGURACOES) -->
+            <section id="view-tariffs-section" class="app-view">
+                <div class="tariff-grid" id="tariff-cards-container">
+                    <!-- Tariff Cards will be rendered dynamically by JS -->
+                </div>
+            </section>
+
+             <!-- VIEW: MENSALISTAS -->
+             <section id="view-monthly-section" class="app-view">
+                 <div class="monthly-layout">
+                    <!-- Left: Register / Edit Subscriber Form -->
+                    <div class="gate-form-card">
+                        <h2 id="subscriber-form-title">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--color-monthly)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            Novo Cadastro de Mensalista
+                        </h2>
+                        <form id="subscriber-form" onsubmit="handleSaveSubscriber(event)">
+                            <input type="hidden" id="sub-id" value="">
+                            
+                            <div class="form-group">
+                                <label for="sub-name">Nome Completo</label>
+                                <input type="text" id="sub-name" class="input-search" style="width: 100%; height: 46px;" placeholder="Nome do Cliente" required>
+                            </div>
+                            
+                            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <label for="sub-cpf">CPF</label>
+                                    <input type="text" id="sub-cpf" class="input-search" style="width: 100%; height: 46px;" placeholder="000.000.000-00" required>
+                                </div>
+                                <div>
+                                    <label for="sub-plate">Placa do Veículo</label>
+                                    <input type="text" id="sub-plate" class="input-plate" style="height: 46px; font-size: 16px; padding: 0 15px;" placeholder="AAA-9999" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <div>
+                                    <label for="sub-brand">Marca</label>
+                                    <input type="text" id="sub-brand" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: Chevrolet">
+                                </div>
+                                <div>
+                                    <label for="sub-model">Modelo</label>
+                                    <input type="text" id="sub-model" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: Onix">
+                                </div>
+                                <div>
+                                    <label for="sub-color">Cor</label>
+                                    <input type="text" id="sub-color" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: Preto">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Categoria do Veículo</label>
+                                <div class="type-selector" style="grid-template-columns: repeat(3, 1fr);">
+                                    <div class="type-option selected" id="sub-type-car" onclick="selectSubVehicleType('Car')" style="padding: 10px;">
+                                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.5 6 10 6H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h2"/></svg>
+                                        <span style="font-size: 11px;">Carro</span>
+                                    </div>
+                                    <div class="type-option" id="sub-type-motorcycle" onclick="selectSubVehicleType('Motorcycle')" style="padding: 10px;">
+                                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><circle cx="5.5" cy="14.5" r="2.5"/><circle cx="18.5" cy="14.5" r="2.5"/><path d="M5.5 12h2.5l2.5-4h4.5l2 4h1.5"/></svg>
+                                        <span style="font-size: 11px;">Moto</span>
+                                    </div>
+                                    <div class="type-option" id="sub-type-truck" onclick="selectSubVehicleType('Truck')" style="padding: 10px;">
+                                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><rect x="1" y="3" width="15" height="13" rx="2"/><circle cx="5" cy="18" r="2"/></svg>
+                                        <span style="font-size: 11px;">Utilitário</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <label for="sub-fee">Mensalidade</label>
+                                    <div class="currency-input-wrapper">
+                                        <span class="currency-input-prefix">R$</span>
+                                        <input type="number" step="5.00" min="0" id="sub-fee" class="input-tariff" value="150.00" required>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 25px;">
+                                    <label class="status-badge" style="cursor: pointer; gap: 8px;">
+                                        <input type="checkbox" id="sub-active" checked style="width: 18px; height: 18px;">
+                                        <span>Cadastro Ativo</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <label for="sub-start">Data de Início</label>
+                                    <input type="date" id="sub-start" class="input-search" style="width: 100%; height: 46px;" required>
+                                </div>
+                                <div>
+                                    <label for="sub-end">Data de Expiração</label>
+                                    <input type="date" id="sub-end" class="input-search" style="width: 100%; height: 46px;" required>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" class="btn-primary btn-monthly" style="flex: 1;" id="btn-save-subscriber">
+                                    Salvar Mensalista
+                                </button>
+                                <button type="button" class="btn-search" style="height: 56px; width: auto; padding: 0 20px; display: none;" id="btn-cancel-sub-edit" onclick="cancelSubscriberEdit()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: Subscribers List -->
+                    <div class="content-box">
+                        <div class="content-box-title">
+                            <span>Mensalistas Cadastrados</span>
+                            <div class="search-box" style="width: 250px;">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="sub-search" oninput="applySubscriberSearch()" placeholder="Pesquisar...">
+                            </div>
+                        </div>
+                        
+                        <div class="table-container" style="max-height: 520px; overflow-y: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome / CPF</th>
+                                        <th>Placa / Categoria</th>
+                                        <th>Veículo</th>
+                                        <th>Mensalidade</th>
+                                        <th>Vencimento</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subscribers-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                            <div id="sub-empty-message" style="display: none; text-align: center; color: var(--text-muted); padding: 50px 20px;">
+                                Nenhum mensalista cadastrado.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: HISTORICO & RELATORIOS -->
+            <section id="view-history-section" class="app-view">
+                <div class="history-filters">
+                    <!-- Search Input -->
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="history-search" oninput="applyHistoryFilters()" placeholder="Buscar por placa ou ticket...">
+                    </div>
+                    
+                    <!-- Status Filter -->
+                    <div class="filter-group">
+                        <select id="history-filter-status" onchange="applyHistoryFilters()" class="select-filter">
+                            <option value="all">Todos os Status</option>
+                            <option value="active">Ativos (No Estacionamento)</option>
+                            <option value="paid">Pagos & Finalizados</option>
+                        </select>
+                        
+                        <select id="history-filter-modality" onchange="applyHistoryFilters()" class="select-filter">
+                            <option value="all">Todas Modalidades</option>
+                            <option value="casual">Avulso</option>
+                            <option value="monthly">Mensalista</option>
+                        </select>
+                        
+                        <select id="history-filter-type" onchange="applyHistoryFilters()" class="select-filter">
+                            <option value="all">Todas Categorias</option>
+                            <option value="Car">Carro</option>
+                            <option value="Motorcycle">Moto</option>
+                            <option value="Truck">Utilitário</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                             <tr>
+                                <th>Ticket</th>
+                                <th>Placa</th>
+                                <th>Modalidade</th>
+                                <th>Categoria</th>
+                                <th>Veículo</th>
+                                <th>Vaga</th>
+                                <th>Entrada</th>
+                                <th>Saída</th>
+                                <th>Valor Pago</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Table rows dynamically populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="history-empty-message" style="display: none; text-align: center; color: var(--text-muted); padding: 50px 20px;">
+                        Nenhum registro encontrado para os filtros selecionados.
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: NOTIFICACOES / LOGS -->
+            <section id="view-logs-section" class="app-view">
+                <div class="content-box">
+                    <div class="content-box-title">
+                        <span>Notificações e Logs do Sistema</span>
+                        <button class="btn-search" style="width: auto; padding: 0 15px; height: 38px; font-size: 13px; color: var(--color-danger); border-color: rgba(244,63,94,0.2);" onclick="clearSystemLogs()">
+                            Limpar Histórico
+                        </button>
+                    </div>
+                    
+                    <div class="table-container" style="max-height: 600px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 180px;">Horário</th>
+                                    <th style="width: 120px;">Tipo</th>
+                                    <th>Mensagem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                        <div id="logs-empty-message" style="display: none; text-align: center; color: var(--text-muted); padding: 50px 20px;">
+                            Nenhum registro de log no momento.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CONFIG. USUARIOS -->
+            <section id="view-users-section" class="app-view">
+                <div class="gate-grid">
+                    <!-- Left: User Registration / Edit Form -->
+                    <div class="gate-form-card">
+                        <h2 id="user-form-title">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            Novo Usuário
+                        </h2>
+                        <form id="user-crud-form" onsubmit="handleSaveUser(event)">
+                            <input type="hidden" id="crud-user-id" value="">
+                            
+                            <div class="form-group">
+                                <label for="crud-user-name">Nome Completo</label>
+                                <input type="text" id="crud-user-name" class="input-search" style="width: 100%; height: 46px;" placeholder="Nome do Funcionário" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="crud-user-username">Usuário (Login)</label>
+                                <input type="text" id="crud-user-username" class="input-search" style="width: 100%; height: 46px;" placeholder="Ex: joao.silva" required autocomplete="username">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="crud-user-password" id="label-user-password">Senha</label>
+                                <input type="password" id="crud-user-password" class="input-search" style="width: 100%; height: 46px;" placeholder="Mínimo 4 caracteres" required autocomplete="new-password">
+                                <small id="crud-user-password-hint" style="font-size: 11px; color: var(--text-muted); display: none; margin-top: 5px;">Deixe em branco para manter a senha atual.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Perfil de Acesso</label>
+                                <div class="type-selector" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div class="type-option" id="crud-role-cashier" onclick="selectCrudUserRole('Cashier')">
+                                        <span>Caixa</span>
+                                    </div>
+                                    <div class="type-option selected" id="crud-role-admin" onclick="selectCrudUserRole('Admin')">
+                                        <span>Administrador</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="btn-primary" style="flex: 1;" id="btn-save-user">
+                                    Salvar Usuário
+                                </button>
+                                <button type="button" class="btn-search" style="height: 56px; width: auto; padding: 0 20px; display: none;" id="btn-cancel-user-edit" onclick="cancelUserEdit()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: Users List -->
+                    <div class="content-box">
+                        <div class="content-box-title">
+                            <span>Usuários Cadastrados</span>
+                        </div>
+                        
+                        <div class="table-container" style="max-height: 520px; overflow-y: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Usuário</th>
+                                        <th>Perfil</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CONFIGURAR CAPACIDADE -->
+            <section id="view-capacity-section" class="app-view">
+                <div class="gate-grid">
+                    <!-- Left: Form to Edit Capacity -->
+                    <div class="gate-form-card">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--color-primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            Alterar Capacidades
+                        </h2>
+                        
+                        <div class="alert alert-info" style="margin-bottom: 20px; border-left: 4px solid var(--color-primary); background: rgba(147, 51, 234, 0.1); padding: 12px; border-radius: 8px;">
+                            <p style="font-size: 13px; margin: 0; line-height: 1.4; color: var(--text-normal);">
+                                <strong>Aviso de Segurança:</strong> Não é permitido reduzir a capacidade de um setor para um valor inferior ao número de vagas que já estão ocupadas por veículos ativos daquela categoria.
+                            </p>
+                        </div>
+
+                        <form id="capacity-config-form" onsubmit="handleSaveCapacity(event)">
+                            <div class="form-group">
+                                <label for="capacity-cars">Capacidade de Carros (Setor A)</label>
+                                <input type="number" id="capacity-cars" class="input-search" style="width: 100%; height: 46px;" min="0" required>
+                                <small id="occupied-cars-hint" style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 5px;">Carros ativos hoje: 0. Mínimo permitido: 0</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="capacity-motorcycles">Capacidade de Motos (Setor B)</label>
+                                <input type="number" id="capacity-motorcycles" class="input-search" style="width: 100%; height: 46px;" min="0" required>
+                                <small id="occupied-motorcycles-hint" style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 5px;">Motos ativas hoje: 0. Mínimo permitido: 0</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="capacity-trucks">Capacidade de Utilitários (Setor C)</label>
+                                <input type="number" id="capacity-trucks" class="input-search" style="width: 100%; height: 46px;" min="0" required>
+                                <small id="occupied-trucks-hint" style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 5px;">Utilitários ativos hoje: 0. Mínimo permitido: 0</small>
+                            </div>
+                            
+                            <div style="margin-top: 25px;">
+                                <button type="submit" class="btn-primary" style="width: 100%; height: 50px;" id="btn-save-capacity">
+                                    Salvar Nova Capacidade
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: Current Details -->
+                    <div class="content-box">
+                        <div class="content-box-title">
+                            <span>Distribuição Atual de Vagas</span>
+                        </div>
+                        
+                        <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+                            <!-- Car sector status card -->
+                            <div class="status-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 15px; margin-bottom: 5px; color: var(--text-normal);">Setor A - Carros</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);" id="sector-a-summary">Ocupação: 0 / 0 vagas (0%)</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span id="sector-a-badge" class="badge badge-success" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">OK</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Motorcycle sector status card -->
+                            <div class="status-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 15px; margin-bottom: 5px; color: var(--text-normal);">Setor B - Motos</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);" id="sector-b-summary">Ocupação: 0 / 0 vagas (0%)</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span id="sector-b-badge" class="badge badge-success" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">OK</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Truck sector status card -->
+                            <div class="status-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 15px; margin-bottom: 5px; color: var(--text-normal);">Setor C - Utilitários</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);" id="sector-c-summary">Ocupação: 0 / 0 vagas (0%)</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span id="sector-c-badge" class="badge badge-success" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">OK</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer com Copyright -->
+            <footer class="app-footer">
+                <span>&copy; 2026 AG Parking - Sistema Inteligente de Estacionamento. Todos os direitos reservados.</span>
+                <span>Versão 1.0.0 | C# &amp; .NET 9</span>
+            </footer>
+        </main>
+    </div>
+
+    <!-- POPUP / TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- MODAL DETAILS INTERFACE -->
+    <div class="modal-overlay" id="space-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-space-title">Vaga A-01</h3>
+                <button class="modal-close" onclick="closeSpaceModal()">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div id="modal-space-details">
+                <!-- Content generated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ALTERAR SENHA -->
+    <div class="modal-overlay" id="change-password-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Alterar Minha Senha</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="change-password-form" onsubmit="handleChangePassword(event)">
+                <div class="form-group">
+                    <label for="change-pwd-current">Senha Atual</label>
+                    <input type="password" id="change-pwd-current" class="input-search" style="width: 100%; height: 46px;" required autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label for="change-pwd-new">Nova Senha</label>
+                    <input type="password" id="change-pwd-new" class="input-search" style="width: 100%; height: 46px;" placeholder="Mínimo 4 caracteres" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="change-pwd-confirm">Confirmar Nova Senha</label>
+                    <input type="password" id="change-pwd-confirm" class="input-search" style="width: 100%; height: 46px;" placeholder="Repita a nova senha" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 15px; width: 100%;">
+                    Atualizar Senha
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de Aplicação JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>

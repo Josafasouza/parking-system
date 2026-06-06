@@ -1,0 +1,29 @@
+# Binaries & Build outputs
+[Bb]in/
+[Oo]bj/
+[Xx]64/
+[Xx]86/
+[Aa]rm/
+[Aa]rm64/
+Debug/
+Release/
+
+# SQLite Database
+parking.db
+parking.db-journal
+parking.db-shm
+parking.db-wal
+
+# IDE / User Settings
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
