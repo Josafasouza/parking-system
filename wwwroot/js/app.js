@@ -949,6 +949,9 @@ function renderHistory() {
                     <button class="btn-search" style="padding: 6px 10px; height: auto; width: auto; font-size: 11px; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); color: var(--color-primary);" onclick="viewTicketReceiptFromHistory('${ticket.ticketNumber}')" title="Visualizar Cupom">
                         👁️
                     </button>
+                    <button class="btn-search" style="padding: 6px 10px; height: auto; width: auto; font-size: 11px; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); color: var(--color-warning);" onclick="reprintTicketFromHistory('${ticket.ticketNumber}')" title="Reimprimir Cupom">
+                        🖨️
+                    </button>
                     <button class="btn-success" style="padding: 6px 10px; height: auto; width: auto; font-size: 11px; background: rgba(37, 211, 102, 0.1); border-color: rgba(37, 211, 102, 0.2); color: #25d366;" onclick="openWhatsAppChatbot('${ticket.ticketNumber}')" title="Enviar WhatsApp">
                         💬
                     </button>
@@ -3595,5 +3598,29 @@ function viewTicketReceiptFromHistory(ticketNumber) {
     }
     
     showToast(`Mostrando comprovante do ticket ${ticketNumber}`, "info");
+}
+
+function reprintTicketFromHistory(ticketNumber) {
+    const ticket = tickets.find(t => t.ticketNumber === ticketNumber);
+    if (!ticket) {
+        showToast("Ticket não localizado.", "error");
+        return;
+    }
+    
+    // Switch active receipt references temporarily
+    const oldActiveTicket = currentActiveReceiptTicket;
+    const oldActiveSpace = currentActiveReceiptSpace;
+    
+    currentActiveReceiptTicket = ticket;
+    currentActiveReceiptSpace = parkingSpaces.find(s => s.id === ticket.parkingSpaceId);
+    
+    // Trigger print
+    printActiveReceipt();
+    
+    // Restore previous active references
+    currentActiveReceiptTicket = oldActiveTicket;
+    currentActiveReceiptSpace = oldActiveSpace;
+    
+    showToast(`Reimpressão enviada para o ticket ${ticketNumber}`, "success");
 }
 
