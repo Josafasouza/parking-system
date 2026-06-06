@@ -1634,8 +1634,6 @@ function renderPaidReceipt(ticket, space) {
                 </p>
             </div>
         </div>
-            </div>
-        </div>
         <div class="receipt-actions-row" style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
             <button class="btn-primary" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px;" onclick="printActiveReceipt()">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -3183,7 +3181,7 @@ function openWhatsAppChatbot(ticketNumber) {
     chatbotActiveTicket = ticket;
     
     const modal = document.getElementById('whatsapp-chatbot-modal');
-    if (modal) modal.style.display = 'flex';
+    if (modal) modal.classList.add('active');
     
     const phoneInput = document.getElementById('whatsapp-phone-input');
     if (phoneInput) phoneInput.value = '';
@@ -3208,7 +3206,7 @@ function openWhatsAppChatbot(ticketNumber) {
 // Close WhatsApp modal
 function closeWhatsAppModal() {
     const modal = document.getElementById('whatsapp-chatbot-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('active');
     chatbotActiveTicket = null;
 }
 
