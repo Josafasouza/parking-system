@@ -124,6 +124,12 @@ function applyPrivilegeLocks(role) {
     if (navItemCapacity) {
         navItemCapacity.style.display = isAdmin ? 'block' : 'none';
     }
+
+    // 5. Printing Config View: Hide the printing sidebar item for Cashier
+    const navItemPrinting = document.getElementById('nav-item-printing');
+    if (navItemPrinting) {
+        navItemPrinting.style.display = isAdmin ? 'block' : 'none';
+    }
 }
 
 async function getSha256(str) {
@@ -173,7 +179,7 @@ async function handleLoginSubmit(event) {
             
             const simUsers = JSON.parse(localStorage.getItem('ag_sim_users')) || [
                 { id: 1, name: "Administrador Geral", username: "admin", role: "Admin", passwordHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" },
-                { id: 2, name: "Operador de Caixa", username: "caixa", role: "Cashier", passwordHash: "715ea80c0576a88b56087d3a7c6f059cb2cf7ff112521c7a8292d348a4c845b4" }
+                { id: 2, name: "Operador de Caixa", username: "caixa", role: "Cashier", passwordHash: "e3d7b71d78b2fcdf81575b07832bd28ac63949df11aa6f55dbba726333b77780" }
             ];
             
             const inputHash = await getSha256(password);
@@ -236,7 +242,7 @@ async function handleLoginSubmit(event) {
                         
                         const simUsers = JSON.parse(localStorage.getItem('ag_sim_users')) || [
                             { id: 1, name: "Administrador Geral", username: "admin", role: "Admin", passwordHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" },
-                            { id: 2, name: "Operador de Caixa", username: "caixa", role: "Cashier", passwordHash: "715ea80c0576a88b56087d3a7c6f059cb2cf7ff112521c7a8292d348a4c845b4" }
+                            { id: 2, name: "Operador de Caixa", username: "caixa", role: "Cashier", passwordHash: "e3d7b71d78b2fcdf81575b07832bd28ac63949df11aa6f55dbba726333b77780" }
                         ];
                         const inputHash = await getSha256(password);
                         const user = simUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.passwordHash === inputHash);
@@ -281,7 +287,7 @@ async function handleLoginSubmit(event) {
             // Network fallback to local simulated accounts
             const simUsers = JSON.parse(localStorage.getItem('ag_sim_users')) || [
                 { id: 1, name: "Administrador Geral", username: "admin", role: "Admin", passwordHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918" },
-                { id: 2, name: "Operador de Caixa", username: "caixa", role: "Cashier", passwordHash: "715ea80c0576a88b56087d3a7c6f059cb2cf7ff112521c7a8292d348a4c845b4" }
+                { id: 2, name: "Operador de Caixa", username: "caixa", role: "Cashier", passwordHash: "e3d7b71d78b2fcdf81575b07832bd28ac63949df11aa6f55dbba726333b77780" }
             ];
             const inputHash = await getSha256(password);
             const user = simUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.passwordHash === inputHash);
@@ -319,6 +325,7 @@ function handleLogout() {
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
+    initializePrintingConfig();
     updateSystemClock();
     checkAuth();
     checkConnectionAndLoad();
@@ -641,6 +648,10 @@ function updateHeaderTitles(viewName) {
             title.textContent = 'Configurar Capacidade de Vagas';
             subtitle.textContent = 'Gerencie o limite máximo de vagas do complexo por categoria de veículo.';
             break;
+        case 'printing':
+            title.textContent = 'Configurações de Impressão';
+            subtitle.textContent = 'Configure as opções de impressoras, textos dos cupons e impressão automática.';
+            break;
     }
 }
 
@@ -683,6 +694,9 @@ async function renderActiveView() {
             break;
         case 'capacity':
             renderCapacity();
+            break;
+        case 'printing':
+            renderPrinting();
             break;
     }
 
@@ -1500,11 +1514,31 @@ function renderTicketReceipt(ticket, space) {
                 </p>
             </div>
         </div>
+        <div class="receipt-actions-row" style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
+            <button class="btn-primary" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px;" onclick="printActiveReceipt()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Imprimir
+            </button>
+            <button class="btn-success" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; background: #25d366; border-color: #25d366;" onclick="sendActiveReceiptWhatsApp()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12.031 2c-5.506 0-9.975 4.469-9.975 9.975 0 1.761.459 3.478 1.33 4.992l-1.416 5.176 5.297-1.391c1.468.802 3.12 1.226 4.764 1.226 5.506 0 9.975-4.469 9.975-9.975 0-2.656-1.033-5.153-2.909-7.031-1.875-1.878-4.373-2.909-7.066-2.909zm.006 1.831c2.197 0 4.263.856 5.819 2.412 1.556 1.556 2.412 3.622 2.412 5.819 0 4.524-3.682 8.207-8.207 8.207-1.488 0-2.947-.403-4.223-1.164l-.303-.18-3.136.822.837-3.056-.197-.314c-.832-1.328-1.272-2.871-1.272-4.457 0-4.524 3.682-8.207 8.207-8.207zm-3.536 2.923c-.194 0-.419.043-.606.246-.188.203-.719.703-.719 1.716s.738 1.992.838 2.128c.1.135 1.452 2.217 3.518 3.109.492.212.876.339 1.176.434.494.157.943.134 1.299.081.397-.059 1.219-.498 1.394-.98.175-.481.175-.895.123-.98-.052-.085-.192-.135-.403-.241-.212-.106-1.253-.618-1.447-.687-.194-.069-.336-.103-.478.11-.142.212-.55.687-.674.825-.125.137-.249.154-.461.049-.211-.105-.894-.329-1.704-1.053-.63-.562-1.056-1.255-1.18-1.466-.123-.211-.013-.326.093-.431.096-.095.212-.246.318-.369.106-.123.142-.211.212-.352.069-.142.035-.266-.017-.372-.052-.106-.478-1.15-.656-1.579-.174-.419-.364-.359-.478-.359z"/></svg>
+                WhatsApp
+            </button>
+        </div>
     `;
     
     previewContainer.innerHTML = receiptHtml;
     emptyState.style.display = 'none';
     previewContainer.style.display = 'block';
+    
+    // Set global references for print/whatsapp actions
+    currentActiveReceiptTicket = ticket;
+    currentActiveReceiptSpace = space;
+    
+    // Auto-print on entry if configured
+    const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
+    if (config.autoPrintEntry) {
+        printActiveReceipt();
+    }
 }
 
 // Receipt Paid at Exit
@@ -1590,11 +1624,33 @@ function renderPaidReceipt(ticket, space) {
                 </p>
             </div>
         </div>
+            </div>
+        </div>
+        <div class="receipt-actions-row" style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
+            <button class="btn-primary" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px;" onclick="printActiveReceipt()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Imprimir
+            </button>
+            <button class="btn-success" style="flex: 1; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; background: #25d366; border-color: #25d366;" onclick="sendActiveReceiptWhatsApp()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12.031 2c-5.506 0-9.975 4.469-9.975 9.975 0 1.761.459 3.478 1.33 4.992l-1.416 5.176 5.297-1.391c1.468.802 3.12 1.226 4.764 1.226 5.506 0 9.975-4.469 9.975-9.975 0-2.656-1.033-5.153-2.909-7.031-1.875-1.878-4.373-2.909-7.066-2.909zm.006 1.831c2.197 0 4.263.856 5.819 2.412 1.556 1.556 2.412 3.622 2.412 5.819 0 4.524-3.682 8.207-8.207 8.207-1.488 0-2.947-.403-4.223-1.164l-.303-.18-3.136.822.837-3.056-.197-.314c-.832-1.328-1.272-2.871-1.272-4.457 0-4.524 3.682-8.207 8.207-8.207zm-3.536 2.923c-.194 0-.419.043-.606.246-.188.203-.719.703-.719 1.716s.738 1.992.838 2.128c.1.135 1.452 2.217 3.518 3.109.492.212.876.339 1.176.434.494.157.943.134 1.299.081.397-.059 1.219-.498 1.394-.98.175-.481.175-.895.123-.98-.052-.085-.192-.135-.403-.241-.212-.106-1.253-.618-1.447-.687-.194-.069-.336-.103-.478.11-.142.212-.55.687-.674.825-.125.137-.249.154-.461.049-.211-.105-.894-.329-1.704-1.053-.63-.562-1.056-1.255-1.18-1.466-.123-.211-.013-.326.093-.431.096-.095.212-.246.318-.369.106-.123.142-.211.212-.352.069-.142.035-.266-.017-.372-.052-.106-.478-1.15-.656-1.579-.174-.419-.364-.359-.478-.359z"/></svg>
+                WhatsApp
+            </button>
+        </div>
     `;
     
     previewContainer.innerHTML = receiptHtml;
     emptyState.style.display = 'none';
     previewContainer.style.display = 'block';
+    
+    // Set global references for print/whatsapp actions
+    currentActiveReceiptTicket = ticket;
+    currentActiveReceiptSpace = space;
+    
+    // Auto-print on exit if configured
+    const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
+    if (config.autoPrintExit) {
+        printActiveReceipt();
+    }
 }
 
 // -------------------------------------------------------------
@@ -2837,5 +2893,675 @@ function adjustSimulatedCapacity(type, targetCapacity, prefix) {
         const removeIds = new Set(spacesToRemove.map(s => s.id));
         parkingSpaces = parkingSpaces.filter(s => !removeIds.has(s.id));
     }
+}
+
+// Global active ticket references for printing and sharing
+let currentActiveReceiptTicket = null;
+let currentActiveReceiptSpace = null;
+let chatbotActiveTicket = null;
+
+// Initialize printing configuration in localStorage
+function initializePrintingConfig() {
+    if (!localStorage.getItem('ag_printing_config')) {
+        const defaultConfig = {
+            profile: 'virtual',
+            headerText: 'ESTACIONAMENTO AG PARKING',
+            footerText: 'Guarde este cupom. Sujeito a cobrança em caso de extravio.',
+            autoPrintEntry: false,
+            autoPrintExit: false
+        };
+        localStorage.setItem('ag_printing_config', JSON.stringify(defaultConfig));
+    }
+}
+
+// Render printing config view
+function renderPrinting() {
+    const config = JSON.parse(localStorage.getItem('ag_printing_config'));
+    if (!config) return;
+    
+    document.getElementById('printer-profile').value = config.profile || 'virtual';
+    document.getElementById('print-header').value = config.headerText || '';
+    document.getElementById('print-footer').value = config.footerText || '';
+    document.getElementById('print-auto-entry').checked = !!config.autoPrintEntry;
+    document.getElementById('print-auto-exit').checked = !!config.autoPrintExit;
+    
+    updateLiveTicketPreview();
+}
+
+// Update live preview widths and badges
+function updateLiveTicketPreview() {
+    const profile = document.getElementById('printer-profile').value;
+    const headerVal = document.getElementById('print-header').value;
+    const footerVal = document.getElementById('print-footer').value;
+    
+    const headerEl = document.getElementById('preview-header-text');
+    const footerEl = document.getElementById('preview-footer-text');
+    const wrapper = document.getElementById('live-ticket-preview-wrapper');
+    const badge = document.getElementById('preview-width-badge');
+    
+    if (headerEl) headerEl.textContent = headerVal || 'AG PARKING';
+    if (footerEl) footerEl.textContent = footerVal || 'Guarde este cupom.';
+    
+    if (!wrapper || !badge) return;
+    
+    if (profile === 'thermal58') {
+        wrapper.style.maxWidth = '200px';
+        badge.textContent = 'Térmica 58mm';
+    } else if (profile === 'thermal80') {
+        wrapper.style.maxWidth = '280px';
+        badge.textContent = 'Térmica 80mm';
+    } else if (profile === 'standard') {
+        wrapper.style.maxWidth = '100%';
+        badge.textContent = 'Padrão A4 / PDF';
+    } else {
+        wrapper.style.maxWidth = '280px';
+        badge.textContent = 'Apenas Tela';
+    }
+}
+
+// Save printer configurations
+function handleSavePrintingConfig(event) {
+    if (event) event.preventDefault();
+    
+    const config = {
+        profile: document.getElementById('printer-profile').value,
+        headerText: document.getElementById('print-header').value,
+        footerText: document.getElementById('print-footer').value,
+        autoPrintEntry: document.getElementById('print-auto-entry').checked,
+        autoPrintExit: document.getElementById('print-auto-exit').checked
+    };
+    
+    localStorage.setItem('ag_printing_config', JSON.stringify(config));
+    showToast("Configurações de impressão salvas com sucesso!", "success");
+}
+
+// Trigger test print ticket
+function triggerTestPrint() {
+    const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
+    const header = config.headerText || 'AG PARKING';
+    const footer = config.footerText || 'Guarde este cupom.';
+    const profile = config.profile || 'virtual';
+    
+    if (profile === 'virtual') {
+        showToast("O Perfil da Impressora está definido como 'Apenas na Tela'. Mude o perfil para imprimir.", "warning");
+        return;
+    }
+    
+    const htmlContent = `
+        <div style="text-align: center; font-family: monospace; padding: 10px;">
+            <h3>${header}</h3>
+            <p>CNPJ: 12.345.678/0001-99</p>
+            <p>AV. TECNOLOGIA, 2026 - BRAZIL</p>
+            <p>-----------------------------</p>
+            <p><strong>CUPOM DE TESTE DE IMPRESSÃO</strong></p>
+            <p>DATA: ${new Date().toLocaleString('pt-BR')}</p>
+            <p>STATUS: IMPRESSORA OK</p>
+            <p>PERFIL: ${profile === 'thermal58' ? 'Térmica 58mm' : (profile === 'thermal80' ? 'Térmica 80mm' : 'Padrão A4')}</p>
+            <p>-----------------------------</p>
+            <p>${footer}</p>
+        </div>
+    `;
+    
+    triggerPhysicalPrint(htmlContent);
+}
+
+// Print ticket/label physically via hidden iframe
+function triggerPhysicalPrint(htmlContent) {
+    const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
+    const profile = config.profile || 'virtual';
+    
+    if (profile === 'virtual') {
+        console.log("Virtual printer mode. Skipping physical print.");
+        return;
+    }
+    
+    let printWidthStyle = 'width: 100%;';
+    if (profile === 'thermal58') {
+        printWidthStyle = 'width: 58mm; max-width: 58mm; padding: 2px;';
+    } else if (profile === 'thermal80') {
+        printWidthStyle = 'width: 80mm; max-width: 80mm; padding: 5px;';
+    } else if (profile === 'standard') {
+        printWidthStyle = 'width: 210mm; max-width: 210mm; padding: 20px;';
+    }
+    
+    let iframe = document.getElementById('ag-print-iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'ag-print-iframe';
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
+    }
+    
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+        <html>
+            <head>
+                <title>Imprimir Cupom</title>
+                <style>
+                    @page {
+                        margin: 0;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        background: #fff;
+                        color: #000;
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 12px;
+                    }
+                    .print-wrapper {
+                        ${printWidthStyle}
+                        margin: 0 auto;
+                        box-sizing: border-box;
+                    }
+                    h3 { margin: 5px 0; font-size: 14px; text-align: center; }
+                    p { margin: 3px 0; }
+                    .receipt-row {
+                        display: flex;
+                        justify-content: space-between;
+                        margin: 3px 0;
+                    }
+                    .receipt-divider {
+                        border-top: 1px dashed #000;
+                        margin: 8px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-wrapper">
+                    ${htmlContent}
+                </div>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    };
+                </script>
+            </body>
+        </html>
+    `);
+    doc.close();
+    showToast("Impressão enviada à fila do sistema.", "success");
+}
+
+// Print currently active preview receipt
+function printActiveReceipt() {
+    if (!currentActiveReceiptTicket || !currentActiveReceiptSpace) {
+        showToast("Nenhum cupom ativo carregado para impressão.", "error");
+        return;
+    }
+    
+    const config = JSON.parse(localStorage.getItem('ag_printing_config')) || {};
+    const header = config.headerText || 'AG PARKING';
+    const footer = config.footerText || 'Guarde este cupom.';
+    const ticket = currentActiveReceiptTicket;
+    const space = currentActiveReceiptSpace;
+    const typeNames = { 'Car': 'CARRO', 'Motorcycle': 'MOTO', 'Truck': 'UTILITARIO' };
+    const modName = ticket.isMonthly ? 'MENSALISTA' : 'AVULSO';
+    
+    let detailHtml = '';
+    if (ticket.exitTime) {
+        let durText = '';
+        const diffMs = new Date(ticket.exitTime) - new Date(ticket.entryTime);
+        const mins = Math.max(0, Math.round(diffMs / 60000));
+        durText = formatDurationMinutes(mins);
+        
+        detailHtml = `
+            <p style="font-size: 11px; text-align: center; font-weight: bold; margin-top: 5px;">CUPOM FISCAL DE PAGAMENTO</p>
+            <div class="receipt-divider"></div>
+            <div class="receipt-row"><span>TICKET ID:</span><span>${ticket.ticketNumber}</span></div>
+            <div class="receipt-row"><span>PLACA:</span><strong>${ticket.plate}</strong></div>
+            <div class="receipt-row"><span>MODALIDADE:</span><span>${modName}</span></div>
+            <div class="receipt-row"><span>CATEGORIA:</span><span>${typeNames[ticket.vehicleType]}</span></div>
+            <div class="receipt-row"><span>VAGA OCUPADA:</span><span>${space ? space.code : '--'}</span></div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-row"><span>ENTRADA:</span><span>${formatDate(ticket.entryTime)}</span></div>
+            <div class="receipt-row"><span>SAIDA:</span><span>${formatDate(ticket.exitTime)}</span></div>
+            <div class="receipt-row"><span>PERMANENCIA:</span><span>${durText}</span></div>
+            <div class="receipt-row"><span>METODO PGTO:</span><span>${ticket.paymentMethod || 'Dinheiro'}</span></div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-row"><span>PAGO TOTAL:</span><strong>R$ ${ticket.amountPaid.toFixed(2)}</strong></div>
+        `;
+    } else {
+        detailHtml = `
+            <p style="font-size: 11px; text-align: center; font-weight: bold; margin-top: 5px;">TICKET DE ENTRADA</p>
+            <div class="receipt-divider"></div>
+            <div class="receipt-row"><span>NUMERO:</span><span>${ticket.ticketNumber}</span></div>
+            <div class="receipt-row"><span>PLACA:</span><strong>${ticket.plate}</strong></div>
+            <div class="receipt-row"><span>MODALIDADE:</span><span>${modName}</span></div>
+            <div class="receipt-row"><span>CATEGORIA:</span><span>${typeNames[ticket.vehicleType]}</span></div>
+            <div class="receipt-row"><span>VAGA DESIGNADA:</span><strong>${space.code}</strong></div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-row"><span>ENTRADA:</span><span>${formatDate(ticket.entryTime)}</span></div>
+        `;
+    }
+    
+    const htmlContent = `
+        <div style="text-align: center; font-family: monospace; padding: 10px;">
+            <h3>${header}</h3>
+            <p>CNPJ: 12.345.678/0001-99</p>
+            <p>AV. TECNOLOGIA, 2026 - BRAZIL</p>
+            ${detailHtml}
+            <div class="receipt-divider"></div>
+            <p style="font-size: 9px; text-align: center; margin-top: 5px;">${footer}</p>
+        </div>
+    `;
+    
+    triggerPhysicalPrint(htmlContent);
+}
+
+// Redirect receipt to simulated WhatsApp Chatbot modal
+function sendActiveReceiptWhatsApp() {
+    if (!currentActiveReceiptTicket) {
+        showToast("Nenhum cupom ativo carregado para envio.", "error");
+        return;
+    }
+    openWhatsAppChatbot(currentActiveReceiptTicket.ticketNumber);
+}
+
+// Open simulated WhatsApp smartphone interface
+function openWhatsAppChatbot(ticketNumber) {
+    const ticket = tickets.find(t => t.ticketNumber === ticketNumber);
+    if (!ticket) {
+        showToast("Ticket não encontrado para envio.", "error");
+        return;
+    }
+    
+    chatbotActiveTicket = ticket;
+    
+    const modal = document.getElementById('whatsapp-chatbot-modal');
+    if (modal) modal.style.display = 'flex';
+    
+    const phoneInput = document.getElementById('whatsapp-phone-input');
+    if (phoneInput) phoneInput.value = '';
+    
+    const chatBody = document.getElementById('whatsapp-chat-body');
+    if (chatBody) {
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        chatBody.innerHTML = `
+            <div class="whatsapp-bubble whatsapp-msg-in">
+                Olá! Sou o assistente de notificações digitais do <strong>AG Parking</strong>. 🚗
+                <br><br>
+                Por favor, insira o número de telefone celular do cliente no campo abaixo e confirme para enviar o ticket digital.
+                <span class="whatsapp-time">${timeStr}</span>
+            </div>
+        `;
+    }
+    
+    const realLinkContainer = document.getElementById('whatsapp-real-link-container');
+    if (realLinkContainer) realLinkContainer.style.display = 'none';
+}
+
+// Close WhatsApp modal
+function closeWhatsAppModal() {
+    const modal = document.getElementById('whatsapp-chatbot-modal');
+    if (modal) modal.style.display = 'none';
+    chatbotActiveTicket = null;
+}
+
+// Trigger simulated chat messages sequence
+function sendWhatsAppSimulated() {
+    const phoneInput = document.getElementById('whatsapp-phone-input');
+    const phone = phoneInput.value.replace(/\D/g, '').trim();
+    const chatBody = document.getElementById('whatsapp-chat-body');
+    const ticket = chatbotActiveTicket;
+    
+    if (!phone || phone.length < 10) {
+        showToast("Por favor, insira um número de telefone celular válido (DDD + 9 dígitos).", "error");
+        return;
+    }
+    
+    if (!ticket || !chatBody) return;
+    
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // 1. Append User command message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'whatsapp-bubble whatsapp-msg-out';
+    userMsg.innerHTML = `
+        Enviar ticket para: <strong>+55 ${phone}</strong>
+        <span class="whatsapp-time">${timeStr}</span>
+    `;
+    chatBody.appendChild(userMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    
+    // Clear field
+    phoneInput.value = '';
+    
+    // 2. Timeout for typing...
+    setTimeout(() => {
+        const typingMsg = document.createElement('div');
+        typingMsg.className = 'whatsapp-bubble whatsapp-msg-in';
+        typingMsg.id = 'whatsapp-typing-indicator';
+        typingMsg.innerHTML = `
+            Enviando cupom digital... 🕒
+            <span class="whatsapp-time">${timeStr}</span>
+        `;
+        chatBody.appendChild(typingMsg);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }, 1000);
+    
+    // 3. Deliver digital ticket message
+    setTimeout(() => {
+        // Remove typing indicator
+        const indicator = document.getElementById('whatsapp-typing-indicator');
+        if (indicator) indicator.remove();
+        
+        const typeNames = { 'Car': 'CARRO', 'Motorcycle': 'MOTO', 'Truck': 'UTILITARIO' };
+        
+        const successMsg = document.createElement('div');
+        successMsg.className = 'whatsapp-bubble whatsapp-msg-in';
+        successMsg.innerHTML = `
+            O cupom digital foi disparado! Seguem os dados integrados do veículo:
+            
+            <div class="whatsapp-card">
+                <div class="whatsapp-card-title">COMPROVANTE AG PARKING</div>
+                <div><strong>Nº Ticket:</strong> ${ticket.ticketNumber}</div>
+                <div><strong>Placa:</strong> ${ticket.plate}</div>
+                <div><strong>Categoria:</strong> ${typeNames[ticket.vehicleType]}</div>
+                <div><strong>Modalidade:</strong> ${ticket.isMonthly ? 'MENSALISTA' : 'AVULSO'}</div>
+                <div><strong>Entrada:</strong> ${formatDate(ticket.entryTime)}</div>
+                ${ticket.exitTime ? `<div><strong>Saída:</strong> ${formatDate(ticket.exitTime)}</div>` : ''}
+                ${ticket.exitTime ? `<div><strong>Valor Pago:</strong> R$ ${ticket.amountPaid.toFixed(2)}</div>` : ''}
+            </div>
+            
+            Obrigado e boa viagem! 🤝
+            <span class="whatsapp-time">${timeStr}</span>
+        `;
+        chatBody.appendChild(successMsg);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        
+        showToast("Mensagem enviada com sucesso no simulador do WhatsApp!", "success");
+        
+        // Build actual redirect link to open real WhatsApp Web
+        const text = `Olá! Segue o seu ticket do *AG Parking*:\n\n*Ticket:* ${ticket.ticketNumber}\n*Placa:* ${ticket.plate}\n*Entrada:* ${new Date(ticket.entryTime).toLocaleString('pt-BR')}\n${ticket.exitTime ? `*Saída:* ${new Date(ticket.exitTime).toLocaleString('pt-BR')}\n*Pago:* R$ ${ticket.amountPaid.toFixed(2)}\n\n` : ''}Obrigado por utilizar nossos serviços!`;
+        const encodedText = encodeURIComponent(text);
+        const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${encodedText}`;
+        
+        const linkEl = document.getElementById('whatsapp-real-link');
+        const linkContainer = document.getElementById('whatsapp-real-link-container');
+        if (linkEl && linkContainer) {
+            linkEl.href = url;
+            linkContainer.style.display = 'block';
+        }
+    }, 2500);
+}
+
+// Generate beautiful corporate executive PDF report on A4 size
+function generatePDFReport() {
+    if (!tickets || tickets.length === 0) {
+        showToast("Não há tickets no histórico para gerar relatórios.", "warning");
+        return;
+    }
+    
+    // Filter history based on UI active criteria if they exist
+    let reportTickets = [...tickets];
+    const searchVal = document.getElementById('history-search').value.toLowerCase().trim();
+    const statusVal = document.getElementById('history-filter-status').value;
+    const modVal = document.getElementById('history-filter-modality').value;
+    const typeVal = document.getElementById('history-filter-type').value;
+    
+    if (searchVal) {
+        reportTickets = reportTickets.filter(t => 
+            t.plate.toLowerCase().includes(searchVal) || 
+            t.ticketNumber.toLowerCase().includes(searchVal)
+        );
+    }
+    if (statusVal === 'active') {
+        reportTickets = reportTickets.filter(t => !t.isPaid);
+    } else if (statusVal === 'paid') {
+        reportTickets = reportTickets.filter(t => t.isPaid);
+    }
+    if (modVal === 'casual') {
+        reportTickets = reportTickets.filter(t => !t.isMonthly);
+    } else if (modVal === 'monthly') {
+        reportTickets = reportTickets.filter(t => t.isMonthly);
+    }
+    if (typeVal !== 'all') {
+        reportTickets = reportTickets.filter(t => t.vehicleType === typeVal);
+    }
+    
+    // Consolidate values
+    const totalCount = reportTickets.length;
+    const paidTickets = reportTickets.filter(t => t.isPaid);
+    const completedCount = paidTickets.length;
+    const activeCount = totalCount - completedCount;
+    
+    const totalRevenue = paidTickets.reduce((sum, t) => sum + (t.amountPaid || 0), 0);
+    
+    const cars = reportTickets.filter(t => t.vehicleType === 'Car');
+    const motos = reportTickets.filter(t => t.vehicleType === 'Motorcycle');
+    const trucks = reportTickets.filter(t => t.vehicleType === 'Truck');
+    
+    const carsRevenue = cars.filter(t => t.isPaid).reduce((sum, t) => sum + t.amountPaid, 0);
+    const motosRevenue = motos.filter(t => t.isPaid).reduce((sum, t) => sum + t.amountPaid, 0);
+    const trucksRevenue = trucks.filter(t => t.isPaid).reduce((sum, t) => sum + t.amountPaid, 0);
+    
+    let avgMinutes = 0;
+    if (completedCount > 0) {
+        const totalMin = paidTickets.reduce((sum, t) => {
+            const diffMs = new Date(t.exitTime) - new Date(t.entryTime);
+            return sum + (diffMs / 60000);
+        }, 0);
+        avgMinutes = Math.round(totalMin / completedCount);
+    }
+    
+    // Build report table HTML
+    let tableRowsHtml = '';
+    reportTickets.slice(0, 50).forEach(t => {
+        const dateEnt = new Date(t.entryTime).toLocaleString('pt-BR');
+        const dateExit = t.exitTime ? new Date(t.exitTime).toLocaleString('pt-BR') : 'Ativo';
+        const typeNames = { 'Car': 'Carro', 'Motorcycle': 'Moto', 'Truck': 'Utilitário' };
+        tableRowsHtml += `
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; font-size: 11px;">${t.ticketNumber}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">${t.plate}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${t.isMonthly ? 'Mensalista' : 'Avulso'}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${typeNames[t.vehicleType]}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${dateEnt}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${dateExit}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold; text-align: right;">R$ ${(t.amountPaid || 0).toFixed(2)}</td>
+            </tr>
+        `;
+    });
+    
+    if (totalCount > 50) {
+        tableRowsHtml += `
+            <tr>
+                <td colspan="7" style="padding: 12px; text-align: center; color: #666; font-style: italic; font-size: 11px;">
+                    Exibindo as primeiras 50 transações do filtro ativo de um total de ${totalCount} registros.
+                </td>
+            </tr>
+        `;
+    }
+    
+    // Open a new print window and inject beautifully structured PDF layout
+    const printWindow = window.open('', '_blank');
+    printWindow.document.open();
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Relatorio Gerencial - AG Parking</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        color: #333;
+                        padding: 30px;
+                        margin: 0;
+                    }
+                    .header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 3px solid #075e54;
+                        padding-bottom: 15px;
+                        margin-bottom: 30px;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 24px;
+                        color: #075e54;
+                    }
+                    .header p {
+                        margin: 3px 0;
+                        font-size: 12px;
+                        color: #666;
+                    }
+                    .kpi-row {
+                        display: flex;
+                        gap: 20px;
+                        margin-bottom: 30px;
+                    }
+                    .kpi-card {
+                        flex: 1;
+                        background: #f8f9fa;
+                        border: 1px solid #e9ecef;
+                        padding: 15px;
+                        border-radius: 8px;
+                        text-align: center;
+                    }
+                    .kpi-val {
+                        font-size: 22px;
+                        font-weight: bold;
+                        color: #075e54;
+                        margin-top: 5px;
+                    }
+                    .kpi-lbl {
+                        font-size: 11px;
+                        color: #6c757d;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .section-title {
+                        font-size: 16px;
+                        font-weight: bold;
+                        border-left: 4px solid #075e54;
+                        padding-left: 10px;
+                        margin: 25px 0 15px 0;
+                        color: #333;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 25px;
+                    }
+                    th {
+                        background: #f1f3f5;
+                        padding: 10px;
+                        text-align: left;
+                        font-size: 12px;
+                        border-bottom: 2px solid #dee2e6;
+                    }
+                    td {
+                        font-size: 12px;
+                    }
+                    .footer {
+                        margin-top: 50px;
+                        border-top: 1px solid #dee2e6;
+                        padding-top: 15px;
+                        text-align: center;
+                        font-size: 10px;
+                        color: #999;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div>
+                        <h1>AG PARKING</h1>
+                        <p>Sistema Inteligente de Estacionamento</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3>RELATÓRIO GERENCIAL</h3>
+                        <p>Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+                    </div>
+                </div>
+                
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Receita Consolidada</div>
+                        <div class="kpi-val">R$ ${totalRevenue.toFixed(2)}</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Estadias Finalizadas</div>
+                        <div class="kpi-val">${completedCount}</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Veículos Ativos</div>
+                        <div class="kpi-val">${activeCount}</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Permanência Média</div>
+                        <div class="kpi-val">${avgMinutes} min</div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Resumo Financeiro por Categoria</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Total de Veículos</th>
+                            <th>Percentual</th>
+                            <th style="text-align: right;">Receita Acumulada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">Setor A - Carros</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${cars.length}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${totalCount > 0 ? Math.round((cars.length / totalCount) * 100) : 0}%</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6; font-weight: bold; text-align: right;">R$ ${carsRevenue.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">Setor B - Motos</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${motos.length}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${totalCount > 0 ? Math.round((motos.length / totalCount) * 100) : 0}%</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6; font-weight: bold; text-align: right;">R$ ${motosRevenue.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">Setor C - Utilitários</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${trucks.length}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${totalCount > 0 ? Math.round((trucks.length / totalCount) * 100) : 0}%</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #dee2e6; font-weight: bold; text-align: right;">R$ ${trucksRevenue.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="section-title">Detalhamento das Estadias Recentes</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Placa</th>
+                            <th>Modalidade</th>
+                            <th>Categoria</th>
+                            <th>Entrada</th>
+                            <th>Saída</th>
+                            <th style="text-align: right;">Valor Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRowsHtml}
+                    </tbody>
+                </table>
+                
+                <div class="footer">
+                    Relatório Administrativo Oficial - AG Parking. Todos os direitos reservados.
+                </div>
+                
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    };
+                </script>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    showToast("Relatório gerencial gerado. Abra o painel de impressão.", "success");
 }
 

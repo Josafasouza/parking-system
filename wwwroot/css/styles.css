@@ -1784,3 +1784,65 @@ body {
     gap: 30px;
 }
 
+/* WhatsApp Simulated Chatbot Styles */
+.whatsapp-bubble {
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    position: relative;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    word-wrap: break-word;
+    color: #333;
+}
+
+.whatsapp-msg-in {
+    align-self: flex-start;
+    background: #ffffff;
+    border-top-left-radius: 0;
+}
+
+.whatsapp-msg-out {
+    align-self: flex-end;
+    background: #d9fdd3;
+    border-top-right-radius: 0;
+}
+
+.whatsapp-time {
+    font-size: 9px;
+    color: #8696a0;
+    margin-top: 4px;
+    text-align: right;
+    display: block;
+}
+
+.whatsapp-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.whatsapp-card-title {
+    font-weight: bold;
+    color: #075e54;
+    border-bottom: 1px dashed #ced4da;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+/* Print utility overrides for browser printing fallback */
+@media print {
+    .print-hide {
+        display: none !important;
+    }
+}
+
+
