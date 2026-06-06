@@ -1,4 +1,4 @@
-# 🚗 Antigravity Parking System - Premium SaaS Edition
+# 🚗 Pytá Parking System - Premium SaaS Edition
 
 Este é um **Sistema de Gerenciamento de Estacionamento Completo, Inteligente e Responsivo**, desenvolvido utilizando as tecnologias mais modernas do ecossistema **C# .NET 9 (Core)** no backend e uma interface **Single Page Application (SPA) Web Premium** no frontend.
 
@@ -28,9 +28,11 @@ O sistema dispõe de controle de cancela de entrada, vagas em tempo real categor
 * **Exportação Financeira**: A partir da aba de histórico de transações, é possível aplicar filtros avançados por status, placa, modalidade e categoria.
 * **Layout Executivo**: Ao clicar em **"Exportar PDF"**, o sistema consolida as métricas (Receita total filtrada, Permanência média, Veículos finalizados e a divisão de faturamento por tipo de veículo) em um layout executivo, estilizado para impressão direta em folha A4 ou gravação em PDF.
 
-### 4. 🤖 Envio Digital via Chatbot WhatsApp
-* **Simulador de Smartphone**: Uma réplica interativa de tela de chat de smartphone exibe o chatbot simulado gerando o ticket e enviando em tempo real para o cliente (incluindo o status "digitando..." e animações).
-* **WhatsApp Web Integration**: Gera links e redirecionamentos diretos para a API oficial do WhatsApp Web com o telefone informado pelo operador, populando a mensagem com todos os dados de entrada/saída estruturados de forma profissional.
+### 4. 🤖 Envio de Ticket Digital & Chatbot WhatsApp
+* **Página de Ticket Digital (`ticket.html`)**: Uma página pública dedicada com visual premium e responsivo (tema escuro, glassmorphism e animações) para os clientes visualizarem em seus smartphones. Exibe a placa do veículo em um layout realista de **Placa Mercosul**, badges de status dinâmicos ("ATIVO" ou "PAGO") e um **QR Code em alta definição** com linha laser de escaneamento para leitura direta na cancela física do estacionamento.
+* **Mecanismo Resiliente**: A página do ticket resolve os dados consumindo a API do backend ou, caso offline/simulado, faz o fallback transparente para o `localStorage` do navegador do cliente.
+* **Simulador de Smartphone**: Uma réplica interativa de tela de chat de smartphone exibe o chatbot simulado gerando o ticket e enviando em tempo real para o cliente (incluindo o status "digitando..." e animações), onde o QR Code e o botão de visualização abrem a página `ticket.html`.
+* **WhatsApp Web Integration**: Gera links e redirecionamentos diretos para a API oficial do WhatsApp Web com o telefone informado pelo operador, contendo os dados do ticket formatados e o link clicável direto para a página do ticket digital.
 
 ### 5. 🚦 Configuração de Capacidade de Vagas
 * **Ajuste Dinâmico de Limites**: O administrador pode ajustar dinamicamente o número máximo de vagas dos setores A (Carros), B (Motos) e C (Utilitários).
