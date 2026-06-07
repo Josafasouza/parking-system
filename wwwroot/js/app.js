@@ -2189,6 +2189,12 @@ function showToast(message, type = 'info') {
         renderLogs();
     }
 
+    // Only display toasts visually on screen for warnings and errors.
+    // Info and Success messages are kept in the System Logs tab but do not popup.
+    if (type !== 'error' && type !== 'warning') {
+        return;
+    }
+
     const container = document.getElementById('toast-container');
     if (!container) return;
     
