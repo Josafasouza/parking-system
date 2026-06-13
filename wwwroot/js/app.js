@@ -323,8 +323,63 @@ function handleLogout() {
     checkAuth();
 }
 
+// -------------------------------------------------------------
+// THEME MANAGEMENT (DARK / LIGHT MODE)
+// -------------------------------------------------------------
+function initTheme() {
+    const savedTheme = localStorage.getItem('pyta_parking_theme');
+    if (savedTheme === 'light') {
+        applyTheme('light');
+    } else {
+        applyTheme('dark');
+    }
+}
+
+function applyTheme(theme) {
+    const btn = document.getElementById('theme-toggle-btn');
+    if (theme === 'light') {
+        document.body.classList.add('light-mode');
+        localStorage.setItem('pyta_parking_theme', 'light');
+        if (btn) {
+            btn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            `;
+            btn.style.borderColor = 'rgba(59, 130, 246, 0.25)';
+            btn.title = "Ativar Modo Escuro";
+        }
+    } else {
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('pyta_parking_theme', 'dark');
+        if (btn) {
+            btn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            `;
+            btn.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+            btn.title = "Ativar Modo Claro";
+        }
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains('light-mode');
+    applyTheme(isLight ? 'dark' : 'light');
+}
+
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     initializePrintingConfig();
     updateSystemClock();
     checkAuth();
